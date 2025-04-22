@@ -1,6 +1,8 @@
 import 'package:attendance_management/widgets/localized.dart';
 import 'package:digit_ui_components/digit_components.dart';
+import 'package:digit_ui_components/widgets/atoms/table_cell.dart';
 import 'package:digit_ui_components/widgets/molecules/digit_card.dart';
+import 'package:digit_ui_components/widgets/molecules/digit_table.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:reactive_forms/reactive_forms.dart';
@@ -21,15 +23,6 @@ class SearchUserPage extends LocalizedStatefulWidget {
 class _SearchUserPageState extends LocalizedState<SearchUserPage> {
   static const _userName = 'userName';
 
-
-  // void _performSearch(BuildContext context) {
-  //   final query = _searchController.text.trim();
-  //   if (query.isNotEmpty) {
-  //     final searchModel = EmployeeSearchModel(userName: query, tenantId: 'mz'); // Change tenantId as needed
-  //     context.read<HrmsBloc>().add(SearchEmployees(searchModel));
-  //   }
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,97 +32,137 @@ class _SearchUserPageState extends LocalizedState<SearchUserPage> {
         builder: (context, formGroup, child) => ScrollableContent(
           header: const Column(children: [
             BackNavigationHelpHeaderWidget(),
-
           ]),
           footer: DigitCard(
             margin: const EdgeInsets.all(spacer2),
             children: [
-            Center(child: DigitButton(label: 'Search User', onPressed: (){}, type: DigitButtonType.primary, size:DigitButtonSize.large )),
-          ],) ,
-          children: [
-            ReactiveWrapperField(
-              formControlName: _userName,
-              validationMessages: {
-                'required': (object) => 'Name is required',
-              },
-              builder: (field) => LabeledField(
-                label: localizations.translate(
-                  'user name'
+              Center(
+                child: Column(
+                  children: [
+                    DigitButton(
+                      mainAxisSize: MainAxisSize.max,
+                      label: 'All User',
+                      onPressed: () {
+                        formGroup.markAllAsTouched();
+                        if (!formGroup.valid) return;
+
+                        final searchModel = EmployeeSearchModel(
+                          tenantId: 'mz',
+                        );
+
+                        context.read<HrmsBloc>().add(SearchEmployees(searchModel));
+                      },
+                      type: DigitButtonType.secondary,
+                      size: DigitButtonSize.large,
+                    ),
+                    DigitButton(
+                      mainAxisSize: MainAxisSize.max,
+                      label: 'Search User',
+                      onPressed: () {
+                        formGroup.markAllAsTouched();
+                        if (!formGroup.valid) return;
+
+                        final searchModel = EmployeeSearchModel(
+                          codes: formGroup.control(_userName).value,
+                          tenantId: 'mz',
+                        );
+
+                        context.read<HrmsBloc>().add(SearchEmployees(searchModel));
+                      },
+                      type: DigitButtonType.primary,
+                      size: DigitButtonSize.large,
+                    ),
+                  ],
                 ),
-                isRequired: true,
-                child: DigitTextFormInput(
-                  charCount: true,
-                  maxLength: 200,
-                  errorMessage: field.errorText,
-                  onChange: (value) {
-                    formGroup.control(_userName).value = value;
-                  },
-                  initialValue: formGroup.control(_userName).value,
+              ),
+            ],
+          ),
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ReactiveWrapperField(
+                formControlName: _userName,
+                validationMessages: {
+                  'required': (object) => 'Name is required',
+                },
+                builder: (field) => LabeledField(
+                  label: localizations.translate('user name'),
+                  isRequired: true,
+                  child: DigitTextFormInput(
+                    charCount: true,
+                    maxLength: 200,
+                    errorMessage: field.errorText,
+                    onChange: (value) {
+                      formGroup.control(_userName).value = value;
+                    },
+                    initialValue: formGroup.control(_userName).value,
+                  ),
                 ),
               ),
             ),
-
+            BlocBuilder<HrmsBloc, HrmsState>(
+              builder: (context, state) {
+                if (state is HrmsLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (state is HrmsLoaded) {
+                  final List<DigitTableColumn> tableHeaderList = [DigitTableColumn(header: "username", cellValue: "codes"),DigitTableColumn(header: "Mobile Number", cellValue: "mobileNumber"),DigitTableColumn(header: "Name", cellValue: "name")];
+                  final List<DigitTableRow> tableData = state.employees.map((m)=> DigitTableRow(tableRow: [
+                    DigitTableData(m.user?.userName ?? "", cellKey: "codes"),
+                    DigitTableData(m.user?.mobileNumber.toString() ?? "", cellKey: "mobileNumber"),
+                    DigitTableData(m.user?.name?? "", cellKey: "name")
+                  ])).toList();
+                  if (state.employees.isEmpty) {
+                    return const Center(child: Text('No employees found.'));
+                  }
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: DigitTable(
+                      scrollPhysics: (tableData.length) > 5
+                          ? const ClampingScrollPhysics()
+                          : const NeverScrollableScrollPhysics(),
+                      rows: tableData,
+                      columns: tableHeaderList,
+                      tableHeight:250,
+                      // MediaQuery.of(context).size.height*0.5,
+                      showSelectedState: false,
+                      showPagination: false,
+                    ),
+                  );
+                  //   ListView.builder(
+                  //   shrinkWrap: true,
+                  //   physics: const NeverScrollableScrollPhysics(),
+                  //   itemCount: state.employees.length,
+                  //   itemBuilder: (context, index) {
+                  //     final emp = state.employees[index];
+                  //     return DigitCard(
+                  //       margin: const EdgeInsets.symmetric(vertical: 4),
+                  //       children: [
+                  //         ListTile(
+                  //           leading: const Icon(Icons.person),
+                  //           title: Text(emp.user?.name ?? 'Unknown'),
+                  //           subtitle: Text(
+                  //             'Status: ${emp.employeeStatus ?? 'N/A'}',
+                  //           ),
+                  //         ),
+                  //       ],
+                  //     );
+                  //   },
+                  // );
+                } else if (state is HrmsError) {
+                  return Center(child: Text('Error: ${state.message}'));
+                }
+                return const SizedBox.shrink();
+              },
+            )
           ],
         ),
-      )
-
-
-      // Padding(
-      //   padding: const EdgeInsets.all(16.0),
-      //   child: Column(
-      //     children: [
-      //       TextField(
-      //         controller: _searchController,
-      //         decoration: const InputDecoration(
-      //           labelText: "Search by Username",
-      //         ),
-      //         onSubmitted: (_) => _performSearch(context),
-      //       ),
-      //       const SizedBox(height: 16),
-      //       ElevatedButton(
-      //         onPressed: () => _performSearch(context),
-      //         child: const Text('Search'),
-      //       ),
-      //       const SizedBox(height: 24),
-      //       Expanded(
-      //         child: BlocBuilder<HrmsBloc, HrmsState>(
-      //           builder: (context, state) {
-      //             if (state is HrmsInitial) {
-      //               return const Center(child: Text('Enter a username to search.'));
-      //             } else if (state is HrmsLoading) {
-      //               return const Center(child: CircularProgressIndicator());
-      //             } else if (state is HrmsLoaded) {
-      //               if (state.employees.isEmpty) {
-      //                 return const Center(child: Text('No employees found.'));
-      //               }
-      //               return ListView.builder(
-      //                 itemCount: state.employees.length,
-      //                 itemBuilder: (context, index) {
-      //                   final emp = state.employees[index];
-      //                   return ListTile(
-      //                     leading: const Icon(Icons.person),
-      //                     title: Text(emp.user?.name ?? 'Unknown'),
-      //                     subtitle: Text('Status: ${emp.employeeStatus ?? 'N/A'}'),
-      //                   );
-      //                 },
-      //               );
-      //             } else if (state is HrmsError) {
-      //               return Center(child: Text('Error: ${state.message}'));
-      //             } else {
-      //               return const SizedBox.shrink();
-      //             }
-      //           },
-      //         ),
-      //       ),
-      //     ],
-      //   ),
-      // ),
+      ),
     );
   }
 
   FormGroup buildForm() {
     return fb.group(<String, Object>{
-      _userName: FormControl<String>(validators: [Validators.required]),
+      _userName: FormControl<String>(),
     });
   }
 }

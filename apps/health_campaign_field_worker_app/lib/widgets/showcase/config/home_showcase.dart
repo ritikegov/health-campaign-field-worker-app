@@ -105,6 +105,8 @@ class _HomePageShowcaseData {
   final closedHouseHold = ShowcaseItemBuilder(
     messageLocalizationKey: i18.home.closedHouseHoldLabel,
   );
+  final hrmsSamplePage = ShowcaseItemBuilder(messageLocalizationKey: i18.home.hrms,);
+  
 
   final clf = ShowcaseItemBuilder(messageLocalizationKey: i18.homeShowcase.clf);
 }

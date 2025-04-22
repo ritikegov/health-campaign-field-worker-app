@@ -55,6 +55,12 @@ abstract class _$AppRouter extends RootStackRouter {
         ),
       );
     },
+    CreateUserRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const CreateUserPage(),
+      );
+    },
     HomeRoute.name: (routeData) {
       final args =
           routeData.argsAs<HomeRouteArgs>(orElse: () => const HomeRouteArgs());
@@ -64,6 +70,12 @@ abstract class _$AppRouter extends RootStackRouter {
           key: args.key,
           appLocalizations: args.appLocalizations,
         ),
+      );
+    },
+    HrmsLandingRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const HrmsLandingPage(),
       );
     },
     LanguageSelectionRoute.name: (routeData) {
@@ -113,6 +125,12 @@ abstract class _$AppRouter extends RootStackRouter {
           key: args.key,
           appLocalizations: args.appLocalizations,
         ),
+      );
+    },
+    SearchUserRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const SearchUserPage(),
       );
     },
     UnauthenticatedRouteWrapper.name: (routeData) {
@@ -276,6 +294,20 @@ class BoundarySelectionRouteArgs {
 }
 
 /// generated route for
+/// [CreateUserPage]
+class CreateUserRoute extends PageRouteInfo<void> {
+  const CreateUserRoute({List<PageRouteInfo>? children})
+      : super(
+          CreateUserRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'CreateUserRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
 /// [HomePage]
 class HomeRoute extends PageRouteInfo<HomeRouteArgs> {
   HomeRoute({
@@ -310,6 +342,20 @@ class HomeRouteArgs {
   String toString() {
     return 'HomeRouteArgs{key: $key, appLocalizations: $appLocalizations}';
   }
+}
+
+/// generated route for
+/// [HrmsLandingPage]
+class HrmsLandingRoute extends PageRouteInfo<void> {
+  const HrmsLandingRoute({List<PageRouteInfo>? children})
+      : super(
+          HrmsLandingRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'HrmsLandingRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
 }
 
 /// generated route for
@@ -476,6 +522,20 @@ class ProjectSelectionRouteArgs {
   String toString() {
     return 'ProjectSelectionRouteArgs{key: $key, appLocalizations: $appLocalizations}';
   }
+}
+
+/// generated route for
+/// [SearchUserPage]
+class SearchUserRoute extends PageRouteInfo<void> {
+  const SearchUserRoute({List<PageRouteInfo>? children})
+      : super(
+          SearchUserRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'SearchUserRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
 }
 
 /// generated route for

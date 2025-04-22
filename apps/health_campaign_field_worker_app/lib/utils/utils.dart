@@ -26,6 +26,7 @@ import '../blocs/projects_beneficiary_downsync/project_beneficiaries_downsync.da
 import '../data/local_store/app_shared_preferences.dart';
 import '../data/local_store/no_sql/schema/localization.dart';
 import '../data/local_store/secure_store/secure_store.dart';
+import '../models/data_model.init.dart' as app_mappers;
 import '../models/app_config/app_config_model.dart';
 import '../router/app_router.dart';
 import '../widgets/progress_indicator/progress_indicator.dart';
@@ -461,6 +462,8 @@ initializeAllMappers() async {
     Future(() => attendance_mappers.initializeMappers()),
     Future(() => data_model_mappers.initializeMappers()),
     Future(() => dss_mappers.initializeMappers()),
+    Future(() => app_mappers.initializeMappers()),
+
   ];
   await Future.wait(initializations);
 }

@@ -1,54 +1,60 @@
 import 'package:dio/dio.dart';
 import '../../../models/entities/hrms.dart';
-import '../../../utils/environment_config.dart';
+// import '../../../utils/environment_config.dart';
 
-class HrmsRemoteRepository{
-  final Dio dio;
+class HrmsRemoteRepository {
+  final Dio _dio;
 
-  const HrmsRemoteRepository(this.dio);
-  
-//EmployeeModel
-  Future<List<EmployeeModel>> searchEmployees(EmployeeSearchModel searchModel) async {
-  final url = 'egov-hrms/employees/_search?tenantId=${envConfig.variables.tenantId}';
-  final baseUrl = envConfig.variables.baseUrl;
-  final optionsData = <String, String>{};
+  const HrmsRemoteRepository(this._dio);
 
-  final response = await dio.post('$baseUrl$url', data: optionsData, queryParameters: {
-    'userName': searchModel.userName
-  });
-
-  if (response.statusCode == 200) {
-    final data = response.data;
-
-    
-    final List<dynamic> employeeResponse = data['Employees'] ?? [];
-
-    
-    final List<EmployeeModel> employeeList =
-        employeeResponse.map((e) => EmployeeModelMapper.fromMap(e)).toList();
-
-    return employeeList;
-  } else {
-    throw Exception('Failed to search HRMS');
+  Future<List<EmployeeModel>> getAllEmployees(
+      EmployeeSearchModel searchModel) async {
+    final optionsData = <String, String>{};
+    final response = await _dio.post('/egov-hrms/employees/_search',
+        queryParameters: searchModel.toMap(),
+      data: optionsData
+    );
+    final result = EmployeeModelListMapper.fromMap(response.data);
+    return result.employees ?? [];
   }
-}
 
+  Future<EmployeeModel> getEmployeeById(String code, String tenantId) async {
+    final response = await _dio.post(
+      'egov-hrms/employees/_search',
+      data: {
+        "code": [code],
+        "tenantId": tenantId,
+      },
+    );
+    final result = EmployeeModelListMapper.fromMap(response.data);
+    return result.employees!.first;
+  }
 
-  Future<dynamic> createEmployee(EmployeeModel employeeModel) async {
-    final url = 'hrms/create';
-    final baseUrl = envConfig.variables.baseUrl;
-    if(url==null){
-      throw Exception ("Create action not found for hrms");
-    }
-    final response = await dio.post(url,data:{
-      "hrms":[employeeModel.toMap()]
-    });
-    if(response.statusCode ==200){
-      final data = response.data['hrms'][0];
-      return EmployeeModelMapper.fromMap(data);
-    }
-    else{
-      throw Exception('failed to create hrms');
+  // Future<EmployeeModelList?> createEmployee(EmployeeModel model) async {
+  //   final body = {
+  //     "Employees": [model.toMap()]
+  //   };
+  //   await _dio.post('egov-hrms/employees//_create', data: body);
+  // }
+
+  Future<EmployeeModelList?> createEmployee(EmployeeModel model) async {
+    final body = {
+      "Employees": [model.toMap()]
+    };
+
+    try {
+      final response = await _dio.post('egov-hrms/employees/_create', data: body);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = response.data;
+        if (data != null && data['Employees'] != null) {
+          return EmployeeModelList.fromJson(data); // Assuming EmployeeModelList takes the full response
+        }
+      }
+      return null;
+    } catch (e) {
+      print('Error creating employee: $e');
+      return null;
     }
   }
 }

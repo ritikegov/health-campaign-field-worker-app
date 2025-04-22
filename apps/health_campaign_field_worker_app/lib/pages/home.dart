@@ -38,9 +38,7 @@ import '../widgets/home/home_item_card.dart';
 import '../widgets/localized.dart';
 import '../widgets/showcase/config/showcase_constants.dart';
 import '../widgets/showcase/showcase_button.dart';
-import 'hrms_sample_page.dart';
 import '../pages/hrms/hrms_landing_page.dart';
-
 
 @RoutePage()
 class HomePage extends LocalizedStatefulWidget {
@@ -110,7 +108,7 @@ class _HomePageState extends LocalizedState<HomePage> {
           slivers: [
             SliverGrid(
               delegate: SliverChildBuilderDelegate(
-                    (context, index) {
+                (context, index) {
                   return homeItems.elementAt(index);
                 },
                 childCount: homeItems.length,
@@ -236,19 +234,19 @@ class _HomePageState extends LocalizedState<HomePage> {
                     return count == 0
                         ? const Offstage()
                         : Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: spacer2,
-                      ),
-                      child: InfoCard(
-                        type: InfoType.info,
-                        description: localizations
-                            .translate(i18.home.dataSyncInfoContent)
-                            .replaceAll('{}', count.toString()),
-                        title: localizations.translate(
-                          i18.home.dataSyncInfoLabel,
-                        ),
-                      ),
-                    );
+                            padding: EdgeInsets.symmetric(
+                              horizontal: spacer2,
+                            ),
+                            child: InfoCard(
+                              type: InfoType.info,
+                              description: localizations
+                                  .translate(i18.home.dataSyncInfoContent)
+                                  .replaceAll('{}', count.toString()),
+                              title: localizations.translate(
+                                i18.home.dataSyncInfoLabel,
+                              ),
+                            ),
+                          );
                   },
                 );
               },
@@ -260,9 +258,9 @@ class _HomePageState extends LocalizedState<HomePage> {
   }
 
   void _showSyncFailedDialog(
-      BuildContext context, {
-        required String message,
-      }) {
+    BuildContext context, {
+    required String message,
+  }) {
     Navigator.of(context, rootNavigator: true).pop();
 
     DigitSyncDialog.show(
@@ -375,12 +373,12 @@ class _HomePageState extends LocalizedState<HomePage> {
 
     final filteredLabels = homeItemsLabel
         .where((element) =>
-    state.actionsWrapper.actions
-        .map((e) => e.displayName)
-        .toList()
-        .contains(element) ||
-        element == i18.home.db ||
-        element == i18.home.hrms)
+            state.actionsWrapper.actions
+                .map((e) => e.displayName)
+                .toList()
+                .contains(element) ||
+            element == i18.home.db ||
+            element == i18.home.hrms)
         .toList();
 
     final showcaseKeys = filteredLabels
@@ -393,7 +391,7 @@ class _HomePageState extends LocalizedState<HomePage> {
     }
 
     final List<Widget> widgetList =
-    filteredLabels.map((label) => homeItemsMap[label]!).toList();
+        filteredLabels.map((label) => homeItemsMap[label]!).toList();
 
     return _HomeItemDataModel(widgetList, showcaseKeys);
   }
@@ -402,48 +400,48 @@ class _HomePageState extends LocalizedState<HomePage> {
     await LocalSecureStore.instance.setManualSyncTrigger(true);
     if (context.mounted) {
       context.read<SyncBloc>().add(
-        SyncSyncUpEvent(
-          userId: context.loggedInUserUuid,
-          localRepositories: [
-            context.read<
-                LocalRepository<IndividualModel, IndividualSearchModel>>(),
-            context.read<
-                LocalRepository<UserActionModel, UserActionSearchModel>>()
-          ],
-          remoteRepositories: [
-            context.read<
-                RemoteRepository<IndividualModel, IndividualSearchModel>>(),
-            context.read<
-                RemoteRepository<UserActionModel, UserActionSearchModel>>(),
-          ],
-        ),
-      );
+            SyncSyncUpEvent(
+              userId: context.loggedInUserUuid,
+              localRepositories: [
+                context.read<
+                    LocalRepository<IndividualModel, IndividualSearchModel>>(),
+                context.read<
+                    LocalRepository<UserActionModel, UserActionSearchModel>>()
+              ],
+              remoteRepositories: [
+                context.read<
+                    RemoteRepository<IndividualModel, IndividualSearchModel>>(),
+                context.read<
+                    RemoteRepository<UserActionModel, UserActionSearchModel>>(),
+              ],
+            ),
+          );
     }
   }
 
   void triggerLocalization() {
     context.read<AppInitializationBloc>().state.maybeWhen(
-      orElse: () {},
-      initialized: (
-          AppConfiguration appConfiguration,
-          _,
-          __,
+          orElse: () {},
+          initialized: (
+            AppConfiguration appConfiguration,
+            _,
+            __,
           ) {
-        final localizationModulesList = appConfiguration.backendInterface;
-        final selectedLocale = AppSharedPreferences().getSelectedLocale;
-        LocalizationParams()
-            .setCode(LeastLevelBoundarySingleton().boundary);
-        context.read<LocalizationBloc>().add(
-          LocalizationEvent.onLoadLocalization(
-            module:
-            "${localizationModulesList?.interfaces.where((element) => element.type == Modules.localizationModule).map((e) => e.name.toString()).join(',')}",
-            tenantId: appConfiguration.tenantId ?? "default",
-            locale: selectedLocale!,
-            path: Constants.localizationApiPath,
-          ),
+            final localizationModulesList = appConfiguration.backendInterface;
+            final selectedLocale = AppSharedPreferences().getSelectedLocale;
+            LocalizationParams()
+                .setCode(LeastLevelBoundarySingleton().boundary);
+            context.read<LocalizationBloc>().add(
+                  LocalizationEvent.onLoadLocalization(
+                    module:
+                        "${localizationModulesList?.interfaces.where((element) => element.type == Modules.localizationModule).map((e) => e.name.toString()).join(',')}",
+                    tenantId: appConfiguration.tenantId ?? "default",
+                    locale: selectedLocale!,
+                    path: Constants.localizationApiPath,
+                  ),
+                );
+          },
         );
-      },
-    );
   }
 }
 
@@ -451,10 +449,10 @@ void setPackagesSingleton(BuildContext context) {
   context.read<AppInitializationBloc>().state.maybeWhen(
       orElse: () {},
       initialized: (
-          AppConfiguration appConfiguration,
-          List<ServiceRegistry> serviceRegistry,
-          List<DashboardConfigSchema?>? dashboardConfigSchema,
-          ) {
+        AppConfiguration appConfiguration,
+        List<ServiceRegistry> serviceRegistry,
+        List<DashboardConfigSchema?>? dashboardConfigSchema,
+      ) {
         final filteredDashboardConfig = filterDashboardConfig(
             dashboardConfigSchema ?? [], context.projectTypeCode ?? "");
         loadLocalization(context, appConfiguration);
@@ -482,7 +480,7 @@ void loadLocalization(
   context.read<LocalizationBloc>().add(
       LocalizationEvent.onUpdateLocalizationIndex(
           index: appConfiguration.languages!.indexWhere((element) =>
-          element.value == AppSharedPreferences().getSelectedLocale),
+              element.value == AppSharedPreferences().getSelectedLocale),
           code: AppSharedPreferences().getSelectedLocale!));
 }
 
