@@ -12,12 +12,14 @@ import 'package:location/location.dart';
 
 import 'blocs/app_initialization/app_initialization.dart';
 import 'blocs/auth/auth.dart';
+import 'blocs/hrmsBlock.dart';
 import 'blocs/localization/localization.dart';
 import 'blocs/project/project.dart';
 import 'data/local_store/app_shared_preferences.dart';
 import 'data/network_manager.dart';
 import 'data/remote_client.dart';
 import 'data/repositories/remote/bandwidth_check.dart';
+import 'data/repositories/remote/hrms.dart';
 import 'data/repositories/remote/localization.dart';
 import 'data/repositories/remote/mdms.dart';
 import 'router/app_navigator_observer.dart';
@@ -122,6 +124,11 @@ class MainApplicationState extends State<MainApplication>
                   boundaryRepository: ctx
                       .read<NetworkManager>()
                       .repository<BoundaryModel, BoundarySearchModel>(ctx),
+                ),
+              ),
+              BlocProvider(
+                create: (ctx) => HrmsBloc(
+                  HrmsRemoteRepository(widget.client) 
                 ),
               ),
             ],

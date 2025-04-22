@@ -25,6 +25,7 @@ import '../data/local_store/app_shared_preferences.dart';
 import '../data/local_store/no_sql/schema/app_configuration.dart';
 import '../data/local_store/no_sql/schema/service_registry.dart';
 import '../data/local_store/secure_store/secure_store.dart';
+import '../data/repositories/remote/hrms.dart';
 import '../models/entities/roles_type.dart';
 import '../router/app_router.dart';
 import '../utils/debound.dart';
@@ -37,6 +38,9 @@ import '../widgets/home/home_item_card.dart';
 import '../widgets/localized.dart';
 import '../widgets/showcase/config/showcase_constants.dart';
 import '../widgets/showcase/showcase_button.dart';
+import 'hrms_sample_page.dart';
+import '../pages/hrms/hrms_landing_page.dart';
+
 
 @RoutePage()
 class HomePage extends LocalizedStatefulWidget {
@@ -58,7 +62,6 @@ class _HomePageState extends LocalizedState<HomePage> {
   @override
   initState() {
     super.initState();
-
     subscription = Connectivity()
         .onConnectivityChanged
         .listen((List<ConnectivityResult> result) async {
@@ -68,11 +71,9 @@ class _HomePageState extends LocalizedState<HomePage> {
         }
       }
     });
-    //// Function to set initial Data required for the packages to run
     setPackagesSingleton(context);
   }
 
-  //  Be sure to cancel subscription after you are done
   @override
   dispose() {
     subscription.cancel();
@@ -87,9 +88,7 @@ class _HomePageState extends LocalizedState<HomePage> {
     if (state is! AuthAuthenticatedState) {
       return Container();
     }
-    final roles = state.userModel.roles.map((e) {
-      return e.code;
-    });
+    final roles = state.userModel.roles.map((e) => e.code);
 
     if (!(roles.contains(RolesType.distributor.toValue()) ||
         roles.contains(RolesType.registrar.toValue()))) {
@@ -97,7 +96,6 @@ class _HomePageState extends LocalizedState<HomePage> {
     }
 
     final mappedItems = _getItems(context);
-
     final homeItems = mappedItems?.homeItems ?? [];
     final showcaseKeys = <GlobalKey>[
       if (!skipProgressBar) homeShowcaseData.distributorProgressBar.showcaseKey,
@@ -112,7 +110,7 @@ class _HomePageState extends LocalizedState<HomePage> {
           slivers: [
             SliverGrid(
               delegate: SliverChildBuilderDelegate(
-                (context, index) {
+                    (context, index) {
                   return homeItems.elementAt(index);
                 },
                 childCount: homeItems.length,
@@ -142,7 +140,6 @@ class _HomePageState extends LocalizedState<HomePage> {
           ),
           children: [
             const SizedBox(height: spacer2 * 2),
-            // INFO : Need to add sync bloc of package Here
             BlocConsumer<SyncBloc, SyncState>(
               listener: (context, state) {
                 state.maybeWhen(
@@ -239,19 +236,19 @@ class _HomePageState extends LocalizedState<HomePage> {
                     return count == 0
                         ? const Offstage()
                         : Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: spacer2,
-                            ),
-                            child: InfoCard(
-                              type: InfoType.info,
-                              description: localizations
-                                  .translate(i18.home.dataSyncInfoContent)
-                                  .replaceAll('{}', count.toString()),
-                              title: localizations.translate(
-                                i18.home.dataSyncInfoLabel,
-                              ),
-                            ),
-                          );
+                      padding: EdgeInsets.symmetric(
+                        horizontal: spacer2,
+                      ),
+                      child: InfoCard(
+                        type: InfoType.info,
+                        description: localizations
+                            .translate(i18.home.dataSyncInfoContent)
+                            .replaceAll('{}', count.toString()),
+                        title: localizations.translate(
+                          i18.home.dataSyncInfoLabel,
+                        ),
+                      ),
+                    );
                   },
                 );
               },
@@ -263,9 +260,9 @@ class _HomePageState extends LocalizedState<HomePage> {
   }
 
   void _showSyncFailedDialog(
-    BuildContext context, {
-    required String message,
-  }) {
+      BuildContext context, {
+        required String message,
+      }) {
     Navigator.of(context, rootNavigator: true).pop();
 
     DigitSyncDialog.show(
@@ -273,19 +270,14 @@ class _HomePageState extends LocalizedState<HomePage> {
       type: DialogType.failed,
       label: message,
       primaryAction: DigitDialogActions(
-        label: localizations.translate(
-          i18.syncDialog.retryButtonLabel,
-        ),
+        label: localizations.translate(i18.syncDialog.retryButtonLabel),
         action: (ctx) {
           Navigator.pop(ctx);
-          // Sync Failed Manual Sync is Enabled
           _attemptSyncUp(context);
         },
       ),
       secondaryAction: DigitDialogActions(
-        label: localizations.translate(
-          i18.syncDialog.closeButtonLabel,
-        ),
+        label: localizations.translate(i18.syncDialog.closeButtonLabel),
         action: (ctx) => Navigator.pop(ctx),
       ),
     );
@@ -298,8 +290,6 @@ class _HomePageState extends LocalizedState<HomePage> {
     }
 
     final Map<String, Widget> homeItemsMap = {
-      // INFO : Need to add home items of package Here
-
       i18.home.dashboard: homeShowcaseData.dashBoard.buildWith(
         child: HomeItemCard(
           icon: Icons.bar_chart_sharp,
@@ -313,7 +303,6 @@ class _HomePageState extends LocalizedState<HomePage> {
           },
         ),
       ),
-
       i18.home.syncDataLabel: homeShowcaseData.distributorSyncData.buildWith(
         child: StreamBuilder<Map<String, dynamic>?>(
           stream: FlutterBackgroundService().on('serviceRunning'),
@@ -354,48 +343,48 @@ class _HomePageState extends LocalizedState<HomePage> {
           },
         ),
       ),
-      i18.home.dashboard: homeShowcaseData.dashBoard.buildWith(
+      i18.home.hrms: homeShowcaseData.hrmsSamplePage.buildWith(
         child: HomeItemCard(
-          icon: Icons.bar_chart_sharp,
-          label: i18.home.dashboard,
+          icon: Icons.person,
+          label: i18.home.hrms,
           onPressed: () {
             if (isTriggerLocalisation) {
               triggerLocalization();
               isTriggerLocalisation = false;
             }
-            ;
-            context.router.push(const UserDashboardRoute());
+            context.router.push(const HrmsLandingRoute());
           },
         ),
       ),
     };
 
     final Map<String, GlobalKey> homeItemsShowcaseMap = {
-      // INFO : Need to add showcase keys of package Here
       i18.home.syncDataLabel: homeShowcaseData.distributorSyncData.showcaseKey,
       i18.home.db: homeShowcaseData.db.showcaseKey,
       i18.home.dashboard: homeShowcaseData.dashBoard.showcaseKey,
       i18.home.clfLabel: homeShowcaseData.clf.showcaseKey,
+      i18.home.hrms: homeShowcaseData.hrmsSamplePage.showcaseKey,
     };
 
     final homeItemsLabel = <String>[
-      // INFO: Need to add items label of package Here
       i18.home.syncDataLabel,
       i18.home.db,
       i18.home.dashboard,
+      i18.home.hrms,
     ];
 
-    final List<String> filteredLabels = homeItemsLabel
+    final filteredLabels = homeItemsLabel
         .where((element) =>
-            state.actionsWrapper.actions
-                .map((e) => e.displayName)
-                .toList()
-                .contains(element) ||
-            element == i18.home.db)
+    state.actionsWrapper.actions
+        .map((e) => e.displayName)
+        .toList()
+        .contains(element) ||
+        element == i18.home.db ||
+        element == i18.home.hrms)
         .toList();
 
     final showcaseKeys = filteredLabels
-        .where((f) => f != i18.home.db)
+        .where((f) => f != i18.home.db && f != i18.home.hrms)
         .map((label) => homeItemsShowcaseMap[label]!)
         .toList();
 
@@ -404,80 +393,71 @@ class _HomePageState extends LocalizedState<HomePage> {
     }
 
     final List<Widget> widgetList =
-        filteredLabels.map((label) => homeItemsMap[label]!).toList();
+    filteredLabels.map((label) => homeItemsMap[label]!).toList();
 
-    return _HomeItemDataModel(
-      widgetList,
-      showcaseKeys,
-    );
+    return _HomeItemDataModel(widgetList, showcaseKeys);
   }
 
   void _attemptSyncUp(BuildContext context) async {
     await LocalSecureStore.instance.setManualSyncTrigger(true);
-
     if (context.mounted) {
       context.read<SyncBloc>().add(
-            SyncSyncUpEvent(
-              userId: context.loggedInUserUuid,
-              localRepositories: [
-                // INFO : Need to add local repo of package Here
-                context.read<
-                    LocalRepository<IndividualModel, IndividualSearchModel>>(),
-                context.read<
-                    LocalRepository<UserActionModel, UserActionSearchModel>>()
-              ],
-              remoteRepositories: [
-                // INFO : Need to add repo repo of package Here
-                context.read<
-                    RemoteRepository<IndividualModel, IndividualSearchModel>>(),
-                context.read<
-                    RemoteRepository<UserActionModel, UserActionSearchModel>>(),
-              ],
-            ),
-          );
+        SyncSyncUpEvent(
+          userId: context.loggedInUserUuid,
+          localRepositories: [
+            context.read<
+                LocalRepository<IndividualModel, IndividualSearchModel>>(),
+            context.read<
+                LocalRepository<UserActionModel, UserActionSearchModel>>()
+          ],
+          remoteRepositories: [
+            context.read<
+                RemoteRepository<IndividualModel, IndividualSearchModel>>(),
+            context.read<
+                RemoteRepository<UserActionModel, UserActionSearchModel>>(),
+          ],
+        ),
+      );
     }
   }
 
   void triggerLocalization() {
     context.read<AppInitializationBloc>().state.maybeWhen(
-          orElse: () {},
-          initialized: (
-            AppConfiguration appConfiguration,
-            _,
-            __,
+      orElse: () {},
+      initialized: (
+          AppConfiguration appConfiguration,
+          _,
+          __,
           ) {
-            final appConfig = appConfiguration;
-            final localizationModulesList = appConfiguration.backendInterface;
-            final selectedLocale = AppSharedPreferences().getSelectedLocale;
-            LocalizationParams()
-                .setCode(LeastLevelBoundarySingleton().boundary);
-            context
-                .read<LocalizationBloc>()
-                .add(LocalizationEvent.onLoadLocalization(
-                  module:
-                      "${localizationModulesList?.interfaces.where((element) => element.type == Modules.localizationModule).map((e) => e.name.toString()).join(',')}",
-                  tenantId: appConfig.tenantId ?? "default",
-                  locale: selectedLocale!,
-                  path: Constants.localizationApiPath,
-                ));
-          },
+        final localizationModulesList = appConfiguration.backendInterface;
+        final selectedLocale = AppSharedPreferences().getSelectedLocale;
+        LocalizationParams()
+            .setCode(LeastLevelBoundarySingleton().boundary);
+        context.read<LocalizationBloc>().add(
+          LocalizationEvent.onLoadLocalization(
+            module:
+            "${localizationModulesList?.interfaces.where((element) => element.type == Modules.localizationModule).map((e) => e.name.toString()).join(',')}",
+            tenantId: appConfiguration.tenantId ?? "default",
+            locale: selectedLocale!,
+            path: Constants.localizationApiPath,
+          ),
         );
+      },
+    );
   }
 }
 
-// Function to set initial Data required for the packages to run
 void setPackagesSingleton(BuildContext context) {
   context.read<AppInitializationBloc>().state.maybeWhen(
       orElse: () {},
       initialized: (
-        AppConfiguration appConfiguration,
-        List<ServiceRegistry> serviceRegistry,
-        List<DashboardConfigSchema?>? dashboardConfigSchema,
-      ) {
+          AppConfiguration appConfiguration,
+          List<ServiceRegistry> serviceRegistry,
+          List<DashboardConfigSchema?>? dashboardConfigSchema,
+          ) {
         final filteredDashboardConfig = filterDashboardConfig(
             dashboardConfigSchema ?? [], context.projectTypeCode ?? "");
         loadLocalization(context, appConfiguration);
-        // INFO : Need to add singleton of package Here
         DashboardSingleton().setInitialData(
             projectId: context.projectId,
             tenantId: envConfig.variables.tenantId,
@@ -502,7 +482,7 @@ void loadLocalization(
   context.read<LocalizationBloc>().add(
       LocalizationEvent.onUpdateLocalizationIndex(
           index: appConfiguration.languages!.indexWhere((element) =>
-              element.value == AppSharedPreferences().getSelectedLocale),
+          element.value == AppSharedPreferences().getSelectedLocale),
           code: AppSharedPreferences().getSelectedLocale!));
 }
 
