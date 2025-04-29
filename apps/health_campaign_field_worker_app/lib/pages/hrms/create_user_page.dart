@@ -287,82 +287,96 @@ class _CreateUserPageState extends LocalizedState<CreateUserPage> {
                       onPressed: () {
                         _form.markAllAsTouched();
                         if (_form.valid) {
-                          final userName =
-                              _form.control('username').value as String?;
-                          final password =
-                              _form.control('password').value as String?;
-                          final name = _form.control('name').value as String?;
-                          final mobile =
-                              _form.control('mobile').value as String?;
-                          final gender =
-                              _form.control('gender').value as String?;
-                          final dobDateTime =
-                              _form.control('dob').value as DateTime?;
-                          final dob = dobDateTime?.millisecondsSinceEpoch;
-                          final email = _form.control('email').value as String?;
-                          final address =
-                              _form.control('address').value as String?;
-                          final employmentType =
-                              _form.control('employmentType').value as String?;
-                          final appointmentDateTime = _form
-                              .control('appointmentDate')
-                              .value as DateTime?;
-                          final appointmentDate =
-                              appointmentDateTime?.millisecondsSinceEpoch;
-                          final department =
-                              _form.control('department').value as String?;
-                          final designation =
-                              _form.control('designation').value as String?;
-                          final roles = _form.control('roles').value as String?;
+                          try {
+                            final userName =
+                                _form.control('username').value as String?;
+                            final password =
+                                _form.control('password').value as String?;
+                            final name = _form.control('name').value as String?;
+                            final mobile =
+                                _form.control('mobile').value as String?;
+                            final gender =
+                                _form.control('gender').value as String?;
+                            final dobDateTime =
+                                _form.control('dob').value as DateTime?;
+                            final dob = dobDateTime?.millisecondsSinceEpoch;
+                            final email =
+                                _form.control('email').value as String?;
+                            final address =
+                                _form.control('address').value as String?;
+                            final employmentType = _form
+                                .control('employmentType')
+                                .value as String?;
+                            final appointmentDateTime = _form
+                                .control('appointmentDate')
+                                .value as DateTime?;
+                            final appointmentDate =
+                                appointmentDateTime?.millisecondsSinceEpoch;
+                            final department =
+                                _form.control('department').value as String?;
+                            final designation =
+                                _form.control('designation').value as String?;
+                            final roles =
+                                _form.control('roles').value as String?;
 
-                          final employee = EmployeeModel(
-                            code: userName,
-                            tenantId: envConfig.variables.tenantId,
-                            employeeType: employmentType,
-                            dateOfAppointment: appointmentDate,
-                            user: User(
+                            final employee = EmployeeModel(
+                              code: userName,
                               tenantId: envConfig.variables.tenantId,
-                              userName: userName,
-                              password: password,
-                              name: name,
-                              mobileNumber: mobile,
-                              gender: gender,
-                              dob: dob,
-                              emailId: email,
-                              correspondenceAddress: address,
-                              roles: <Roles>[
-                                Roles(
-                                    code: roles,
-                                    tenantId: envConfig.variables.tenantId,
-                                    name: roles)
-                              ],
-                            ),
-                            assignments: <AssignmentModel>[
-                              AssignmentModel(
-                                  department: department,
-                                  designation: designation,
-                                  fromDate: appointmentDate,
-                                  isCurrentAssignment: true)
-                            ],
-                            jurisdictions: <Jurisdictions>[
-                              Jurisdictions(
+                              employeeType: employmentType,
+                              dateOfAppointment: appointmentDate,
+                              user: User(
                                 tenantId: envConfig.variables.tenantId,
-                                hierarchy: envConfig.variables.tenantId,
-                                boundary: context.boundary.code,
-                                boundaryType: "VILLAGE",
+                                userName: userName,
+                                password: password,
+                                name: name,
+                                mobileNumber: mobile,
+                                gender: gender,
+                                dob: dob,
+                                emailId: email,
+                                correspondenceAddress: address,
                                 roles: <Roles>[
                                   Roles(
                                       code: roles,
                                       tenantId: envConfig.variables.tenantId,
-                                      name: roles),
+                                      name: roles)
                                 ],
-                              )
-                            ],
-                          );
+                              ),
+                              assignments: <AssignmentModel>[
+                                AssignmentModel(
+                                    department: department,
+                                    designation: designation,
+                                    fromDate: appointmentDate,
+                                    isCurrentAssignment: true)
+                              ],
+                              jurisdictions: <Jurisdictions>[
+                                Jurisdictions(
+                                  tenantId: envConfig.variables.tenantId,
+                                  hierarchy: envConfig.variables.tenantId,
+                                  boundary: context.boundary.code,
+                                  boundaryType: "VILLAGE",
+                                  roles: <Roles>[
+                                    Roles(
+                                        code: roles,
+                                        tenantId: envConfig.variables.tenantId,
+                                        name: roles),
+                                  ],
+                                )
+                              ],
+                            );
 
-                          context
-                              .read<HrmsBloc>()
-                              .add(CreateEmployeeEvent(employee));
+                            context
+                                .read<HrmsBloc>()
+                                .add(CreateEmployeeEvent(employee));
+                          } catch (e, stackTrace) {
+                            debugPrint(
+                                "Error during user creation: $e\n$stackTrace");
+                            Toast.showToast(
+                              context,
+                              message:
+                                  "Something went wrong. Please try again.",
+                              type: ToastType.error,
+                            );
+                          }
                         } else {
                           Toast.showToast(context,
                               message: "Please check all fields",
@@ -482,6 +496,7 @@ class _CreateUserPageState extends LocalizedState<CreateUserPage> {
     return ReactiveWrapperField(
       formControlName: controlName,
       builder: (field) => LabeledField(
+        isRequired: true,
         label: label,
         child: DigitTextFormInput(
           errorMessage: field.errorText,
