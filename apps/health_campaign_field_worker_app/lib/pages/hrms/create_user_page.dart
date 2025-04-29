@@ -414,7 +414,7 @@ class _CreateUserPageState extends LocalizedState<CreateUserPage> {
                   active: gender['active'] as bool,
                 );
               }).toList()),
-          _buildDateField('dob', 'Date of birth'),
+          _buildDobField('dob', 'Date of birth'),
           _buildTextField('email', 'Email'),
           _buildTextField('address', 'Correspondence Address'),
         ],
@@ -506,22 +506,110 @@ class _CreateUserPageState extends LocalizedState<CreateUserPage> {
             cancelText: localizations.translate(
               i18.common.coreCommonCancel,
             ),
-            initialValue: DateFormat('dd/MM/yy').format(field.control.value),
+            // initialValue: DateFormat('DD/MM/YY').format(field.control.value),
           );
         });
+  }
+
+  Widget _buildDobField(String controlName, String label) {
+    return ReactiveWrapperField(
+      formControlName: controlName,
+      builder: (field) {
+        final control = field.control;
+        final hasError = control.invalid && control.touched;
+        final errorText = () {
+          if (control.hasError('required')) {
+            return 'This field is required';
+          }
+          if (control.hasError('minAge')) {
+            return 'Age must be at least 18 years old';
+          }
+          return null;
+        }();
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            InputField(
+              type: InputType.date,
+              label: localizations.translate(label),
+              confirmText: localizations.translate(i18.common.coreCommonOk),
+              cancelText: localizations.translate(i18.common.coreCommonCancel),
+
+              // initialValue: control.value != null
+              //     ? DateFormat('dd/MM/yy').format(control.value)
+              //     : '',
+              errorMessage: hasError ? errorText : null,
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Widget _buildPasswordField(String controlName, String label) {
     return ReactiveWrapperField(
       formControlName: controlName,
-      builder: (field) => LabeledField(
-        label: label,
-        isRequired: true,
-        child: DigitPasswordFormInput(
-          errorMessage: field.errorText,
-          onChange: (val) => _form.control(controlName).value = val,
-        ),
-      ),
+      builder: (field) {
+        final isConfirm = controlName == 'confirmPassword';
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            LabeledField(
+              label: label,
+              isRequired: true,
+              child: DigitPasswordFormInput(
+                errorMessage: field.errorText,
+                onChange: (val) {
+                  _form.control(controlName).value = val;
+
+                  if (!isConfirm) {
+                    // Password validation on input
+                    final password = val ?? '';
+                    final isValid =
+                        RegExp(r'^(?=.*[A-Z])(?=.*[0-9])(?=.*[\W_]).{8,}$')
+                            .hasMatch(password);
+
+                    _form.control(controlName).setErrors(
+                          isValid
+                              ? <String, dynamic>{}
+                              : {'invalidPassword': true},
+                        );
+                  } else {
+                    // Confirm password match check
+                    final confirmPassword = val ?? '';
+                    final originalPassword =
+                        _form.control('password').value ?? '';
+                    _form.control(controlName).setErrors(
+                          confirmPassword == originalPassword
+                              ? {}
+                              : {'notMatch': true},
+                        );
+                  }
+                },
+              ),
+            ),
+            if (!isConfirm &&
+                _form.control(controlName).hasError('invalidPassword'))
+              Padding(
+                padding: const EdgeInsets.only(top: 4.0, left: 12.0),
+                child: Text(
+                  'Password must be at least 8 characters and include an uppercase letter, number, and special character.',
+                  style: TextStyle(color: Colors.red, fontSize: 12),
+                ),
+              ),
+            if (isConfirm && _form.control(controlName).hasError('notMatch'))
+              Padding(
+                padding: const EdgeInsets.only(top: 4.0, left: 12.0),
+                child: Text(
+                  'Passwords do not match.',
+                  style: TextStyle(color: Colors.red, fontSize: 12),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 
