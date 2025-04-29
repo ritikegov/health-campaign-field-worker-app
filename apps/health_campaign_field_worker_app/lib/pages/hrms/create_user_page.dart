@@ -526,6 +526,10 @@ class _CreateUserPageState extends LocalizedState<CreateUserPage> {
           }
           return null;
         }();
+        final currentDate = DateTime.now();
+        final lastDate =
+            DateTime(currentDate.year - 18, currentDate.month, currentDate.day);
+        final firstDate = DateTime(1900);
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -535,11 +539,10 @@ class _CreateUserPageState extends LocalizedState<CreateUserPage> {
               label: localizations.translate(label),
               confirmText: localizations.translate(i18.common.coreCommonOk),
               cancelText: localizations.translate(i18.common.coreCommonCancel),
-
-              // initialValue: control.value != null
-              //     ? DateFormat('dd/MM/yy').format(control.value)
-              //     : '',
               errorMessage: hasError ? errorText : null,
+              firstDate: firstDate,
+              lastDate: lastDate,
+              initialDate: lastDate,
             ),
           ],
         );
