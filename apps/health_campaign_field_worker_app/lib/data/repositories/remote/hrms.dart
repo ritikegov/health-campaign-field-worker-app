@@ -11,9 +11,7 @@ class HrmsRemoteRepository {
       EmployeeSearchModel searchModel) async {
     final optionsData = <String, String>{};
     final response = await _dio.post('/egov-hrms/employees/_search',
-        queryParameters: searchModel.toMap(),
-      data: optionsData
-    );
+        queryParameters: searchModel.toMap(), data: optionsData);
     final result = EmployeeModelListMapper.fromMap(response.data);
     return result.employees ?? [];
   }
@@ -43,17 +41,18 @@ class HrmsRemoteRepository {
     };
 
     try {
-      final response = await _dio.post('egov-hrms/employees/_create', data: body);
+      final response =
+          await _dio.post('egov-hrms/employees/_create', data: body);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = response.data;
         if (data != null && data['Employees'] != null) {
-          return EmployeeModelList.fromJson(data); // Assuming EmployeeModelList takes the full response
+          final result = EmployeeModelListMapper.fromMap(data);
+          return result;
         }
       }
       return null;
     } catch (e) {
-      print('Error creating employee: $e');
       return null;
     }
   }

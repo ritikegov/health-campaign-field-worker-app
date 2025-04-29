@@ -463,7 +463,6 @@ initializeAllMappers() async {
     Future(() => data_model_mappers.initializeMappers()),
     Future(() => dss_mappers.initializeMappers()),
     Future(() => app_mappers.initializeMappers()),
-
   ];
   await Future.wait(initializations);
 }

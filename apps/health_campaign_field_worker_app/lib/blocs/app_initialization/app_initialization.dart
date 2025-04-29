@@ -115,6 +115,7 @@ class AppInitializationBloc
                     MasterEnums.stateInfo.toValue(),
                     MasterEnums.genderType.toValue(),
                     MasterEnums.privacyPolicy.toValue(),
+                    "Department"
                   ]),
                 ),
                 MdmsModuleDetailModel(
@@ -315,7 +316,6 @@ class MdmsConfig {
   final List<AppConfiguration> appConfigs;
   final List<ServiceRegistry> serviceRegistryList;
   final List<DashboardConfigSchema?>? dashboardConfigSchema;
-
 
   const MdmsConfig(
       {required this.appConfigs,

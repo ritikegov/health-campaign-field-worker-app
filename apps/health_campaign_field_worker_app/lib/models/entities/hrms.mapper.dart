@@ -873,8 +873,8 @@ class UserMapper extends ClassMapperBase<User> {
   @override
   final String id = 'User';
 
-  static int? _$mobileNumber(User v) => v.mobileNumber;
-  static const Field<User, int> _f$mobileNumber =
+  static String? _$mobileNumber(User v) => v.mobileNumber;
+  static const Field<User, String> _f$mobileNumber =
       Field('mobileNumber', _$mobileNumber, opt: true);
   static String? _$name(User v) => v.name;
   static const Field<User, String> _f$name = Field('name', _$name, opt: true);
@@ -980,7 +980,7 @@ abstract class UserCopyWith<$R, $In extends User, $Out>
     implements ClassCopyWith<$R, $In, $Out> {
   ListCopyWith<$R, Roles, RolesCopyWith<$R, Roles, Roles>>? get roles;
   $R call(
-      {int? mobileNumber,
+      {String? mobileNumber,
       String? name,
       String? correspondenceAddress,
       String? emailId,

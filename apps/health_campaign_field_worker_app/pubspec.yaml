@@ -1,10 +1,10 @@
 name: health_campaign_field_worker_app
 description: A new Flutter project.
-publish_to: 'none'
+publish_to: "none"
 version: 1.7.0
 
 environment:
-  sdk: '>=3.0.0 <=4.0.0'
+  sdk: ">=3.0.0 <=4.0.0"
 
 dependencies:
   flutter:
@@ -64,6 +64,7 @@ dependencies:
   digit_dss: ^1.0.4
   digit_location_tracker: ^1.0.0
   permission_handler: ^11.3.1
+  logger: ^2.0.2
 
 dev_dependencies:
   flutter_test:
@@ -88,9 +89,9 @@ dev_dependencies:
   hrk_flutter_test_batteries: ^0.8.0
 
 flutter_icons:
-  android: 'ic_launcher'
+  android: "ic_launcher"
   ios: true
-  image_path: 'assets/icons/app_icon.png'
+  image_path: "assets/icons/app_icon.png"
   min_sdk_android: 21
 
 flutter:

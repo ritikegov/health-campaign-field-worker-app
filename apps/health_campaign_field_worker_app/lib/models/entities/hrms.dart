@@ -100,7 +100,7 @@ class Roles with RolesMappable {
 
 @MappableClass(ignoreNull: true, discriminatorValue: MappableClass.useAsDefault)
 class User with UserMappable {
-  final int? mobileNumber;
+  final String? mobileNumber;
   final String? name;
   final String? correspondenceAddress;
   final String? emailId;
