@@ -13,6 +13,7 @@ import 'package:digit_ui_components/widgets/molecules/digit_card.dart';
 import 'package:digit_ui_components/widgets/scrollable_content.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -240,7 +241,10 @@ class _CreateUserPageState extends LocalizedState<CreateUserPage> {
     'mobile': FormControl<String>(),
     'gender': FormControl<String>(),
     'dob': FormControl<DateTime>(value: DateTime.now()),
-    'email': FormControl<String>(),
+    'email': FormControl<String>(validators: [
+      Validators.required,
+      Validators.pattern(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$'),
+    ]),
     'address': FormControl<String>(),
     'employmentType': FormControl<String>(validators: [Validators.required]),
     'appointmentDate': FormControl<DateTime>(
@@ -249,6 +253,15 @@ class _CreateUserPageState extends LocalizedState<CreateUserPage> {
     'designation': FormControl<String>(validators: [Validators.required]),
     'roles': FormControl<String>(validators: [Validators.required]),
   });
+
+  String? getEmailError(FormControl control) {
+    if (control.hasError(ValidationMessage.required)) {
+      return 'Email is required';
+    } else if (control.hasError(ValidationMessage.pattern)) {
+      return 'Please enter a valid email address';
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -416,7 +429,7 @@ class _CreateUserPageState extends LocalizedState<CreateUserPage> {
         children: [
           Text('Personal Details', style: theme.textTheme.headlineMedium),
           _buildTextField('name', 'Name'),
-          _buildTextField('mobile', 'Mobile Number'),
+          _buildMobileField('mobile', 'Mobile Number'),
           // _buildDropdown('gender', 'Gender', ['Male', 'Female']),
           _buildDropdown(
               'gender',
@@ -429,7 +442,7 @@ class _CreateUserPageState extends LocalizedState<CreateUserPage> {
                 );
               }).toList()),
           _buildDobField('dob', 'Date of birth'),
-          _buildTextField('email', 'Email'),
+          _buildEmailField('email', 'Email'),
           _buildTextField('address', 'Correspondence Address'),
         ],
       );
@@ -506,12 +519,51 @@ class _CreateUserPageState extends LocalizedState<CreateUserPage> {
     );
   }
 
+  Widget _buildEmailField(String controlName, String label) {
+    return ReactiveWrapperField(
+      formControlName: controlName,
+      builder: (field) => LabeledField(
+        isRequired: true,
+        label: label,
+        child: DigitTextFormInput(
+          errorMessage: getEmailError(field.control),
+          keyboardType: TextInputType.emailAddress,
+          onChange: (val) => _form.control(controlName).value = val,
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp("[a-zA-Z0-9@.]"))
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMobileField(String controlName, String label) {
+    return ReactiveWrapperField(
+      formControlName: controlName,
+      builder: (field) => LabeledField(
+        isRequired: true,
+        label: label,
+        child: DigitTextFormInput(
+          errorMessage: field.errorText,
+          keyboardType: TextInputType.phone,
+          onChange: (val) => _form.control(controlName).value = val,
+        ),
+      ),
+    );
+  }
+
   Widget _buildDateField(String controlname, String label) {
     return ReactiveWrapperField(
         formControlName: controlname,
         builder: (field) {
+          final currentDate = DateTime.now();
+          final lastDate = currentDate;
+          final firstDate = DateTime(1900);
           return InputField(
             type: InputType.date,
+            initialDate: currentDate,
+            lastDate: lastDate,
+            firstDate: firstDate,
             label: localizations.translate(
               label,
             ),
