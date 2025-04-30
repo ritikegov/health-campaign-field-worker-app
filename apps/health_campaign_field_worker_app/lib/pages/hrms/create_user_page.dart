@@ -632,21 +632,35 @@ class _CreateUserPageState extends LocalizedState<CreateUserPage> {
   }
 
   Widget _buildDropdown(
-      String controlName, String label, List<CommonMasterModel> items) {
+    String controlName,
+    String label,
+    List<CommonMasterModel> items,
+  ) {
     return ReactiveWrapperField(
       formControlName: controlName,
-      builder: (field) => LabeledField(
-        label: label,
-        isRequired: true,
-        child: Dropdown(
-          dropdownType: DropdownType.singleSelect,
-          items: items
-              .map((e) => DropdownItem(name: e.name.toString(), code: e.code))
-              .toList(),
-          onSelect: (val) => field.control.value = val.code,
-          errorMessage: field.errorText,
-        ),
-      ),
+      builder: (field) {
+        final selectedCode = field.control.value;
+        final selectedItem = items
+            .map((e) => DropdownItem(name: e.name.toString(), code: e.code))
+            .firstWhere(
+              (item) => item.code == selectedCode,
+              orElse: () => const DropdownItem(name: '', code: '-'),
+            );
+
+        return LabeledField(
+          label: label,
+          isRequired: true,
+          child: Dropdown(
+            dropdownType: DropdownType.singleSelect,
+            items: items
+                .map((e) => DropdownItem(name: e.name.toString(), code: e.code))
+                .toList(),
+            selectedOption: selectedItem,
+            onSelect: (val) => field.control.value = val.code,
+            errorMessage: field.errorText,
+          ),
+        );
+      },
     );
   }
 }
