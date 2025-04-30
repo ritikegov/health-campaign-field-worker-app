@@ -544,6 +544,8 @@ class _CreateUserPageState extends LocalizedState<CreateUserPage> {
         isRequired: true,
         label: label,
         child: DigitTextFormInput(
+          prefixText: '+91-',
+          maxLength: 10,
           errorMessage: field.errorText,
           keyboardType: TextInputType.phone,
           onChange: (val) => _form.control(controlName).value = val,
