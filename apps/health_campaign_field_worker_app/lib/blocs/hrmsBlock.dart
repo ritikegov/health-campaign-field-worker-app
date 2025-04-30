@@ -74,13 +74,26 @@ class HrmsBloc extends Bloc<HrmsEvent, HrmsState> {
       }
     });
 
+    // on<CreateEmployeeEvent>((event, emit) async {
+    //   emit(HrmsLoading());
+    //   try {
+    //     await repository.createEmployee(event.employee);
+    //     emit(HrmsCreated());
+    //   } catch (e) {
+    //     emit(HrmsError(e.toString()));
+    //   }
+    // });
     on<CreateEmployeeEvent>((event, emit) async {
       emit(HrmsLoading());
       try {
-        await repository.createEmployee(event.employee);
-        emit(HrmsCreated());
+        final result = await repository.createEmployee(event.employee);
+        if (result != null) {
+          emit(HrmsCreated());
+        } else {
+          emit(HrmsError("Failed to create employee. Please try again."));
+        }
       } catch (e) {
-        emit(HrmsError(e.toString()));
+        emit(HrmsError("Exception: ${e.toString()}"));
       }
     });
   }
